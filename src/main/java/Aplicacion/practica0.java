@@ -8,6 +8,7 @@ import Modelo.Socio;
 import org.hibernate.SessionFactory;
 import config.HibernateUtil;
 import java.util.List;
+import java.util.Scanner;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -30,8 +31,9 @@ public class practica0 {
         if (sesionFactory == null) {
             return;
         }
-        listarNombreTelefonoSocios();
-
+        
+        mostrarInformacionSocio("Iria Mosquera Gil");
+        
     }
 
     public static SessionFactory conectarDB() {
@@ -155,5 +157,104 @@ public class practica0 {
         }
 
     }
+
+    public static void listarNombresPorCategorias(String categoria) {
+        try {
+            sesion = sesionFactory.openSession();
+            Transaction tr = null;
+
+            try {
+                tr = sesion.beginTransaction();
+                Query consulta = sesion.createNativeQuery("SELECT s.nombre, s.categoria FROM SOCIO s WHERE s.categoria='" + categoria + "'", Object[].class);
+                List<Object[]> socios = consulta.getResultList();
+                System.out.println("Nombre  |  Categoria");
+
+                for (Object[] s : socios) {
+                    System.out.println(s[0] + " | " + s[1]);
+                }
+
+            } catch (Exception e) {
+                tr.rollback();
+                System.out.println("Error: " + e.getMessage());
+            } finally {
+                if (sesion != null && sesion.isOpen()) {
+                    sesion.close();
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static void listarNombresPorCategorias() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca la categoria: ");
+        String cat = sc.nextLine();
+        listarNombresPorCategorias(cat);
+    }
+
+    public static void mostrarNombreMonitorNick(String nick) {
+        try {
+            sesion = sesionFactory.openSession();
+            Transaction tr = null;
+
+            try {
+                tr = sesion.beginTransaction();
+                Query consulta = sesion.createNativeQuery("SELECT s.nombre FROM MONITOR s WHERE s.nick='" + nick + "'", Object.class);
+                Object monitor = consulta.getSingleResult();
+                System.out.println("Nombre: " + monitor);
+
+            } catch (Exception e) {
+                tr.rollback();
+                System.out.println("Error: " + e.getMessage());
+            } finally {
+                if (sesion != null && sesion.isOpen()) {
+                    sesion.close();
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    
+    
+    public static void mostrarNombreMonitorNick(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca el nick del monitor: ");
+        String nick = sc.nextLine();
+        
+        mostrarNombreMonitorNick(nick);
+    }
+    
+    public static void mostrarInformacionSocio(String nombre){
+        try {
+            sesion = sesionFactory.openSession();
+            Transaction tr = null;
+
+            try {
+                tr = sesion.beginTransaction();
+                Query consulta = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.nombre='" + nombre + "'", Socio.class);
+                Socio socio = (Socio) consulta.getSingleResult();
+                System.out.println("nSocio | Nombre | dni | fNac | Telefono | Correo electronico | fEntrada | Categoria");
+                System.out.println(socio.getNumeroSocio() + " | "  + socio.getNombre() + " | " + socio.getDni() + " | " + socio.getFechaNacimiento() + " | " + socio.getCorreo() + " | " + socio.getFechaEntrada() + " | " + socio.getCategoria());
+
+            } catch (Exception e) {
+                tr.rollback();
+                System.out.println("Error: " + e.getMessage());
+            } finally {
+                if (sesion != null && sesion.isOpen()) {
+                    sesion.close();
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+    
+    
+    
 
 }

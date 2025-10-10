@@ -182,7 +182,7 @@ public class Socio implements Serializable {
 
     @Override
     public String toString() {
-        return "Modelo.Socio[ numeroSocio=" + numeroSocio + " ]";
+        return getNumeroSocio() + " | "  + getNombre() + " | " + getDni() + " | " + getFechaNacimiento() + " | " + getCorreo() + " | " + getFechaEntrada() + " | " + getCategoria();
     }
     
 }
