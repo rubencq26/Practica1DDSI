@@ -176,7 +176,7 @@ public class Actividad implements Serializable {
 
     @Override
     public String toString() {
-        return "Modelo.Actividad[ idActividad=" + idActividad + " ]";
+        return getIdActividad() + " | " + getNombre() + " | " + getDia() + " | " + getHora() + " | " + getDescripcion() + " | " + getPrecioBaseMes() + " | " + getMonitorResponsable();
     }
     
 }

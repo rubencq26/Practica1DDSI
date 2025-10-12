@@ -4,6 +4,7 @@
  */
 package Aplicacion;
 
+import Modelo.Actividad;
 import Modelo.Socio;
 import org.hibernate.SessionFactory;
 import config.HibernateUtil;
@@ -31,9 +32,9 @@ public class practica0 {
         if (sesionFactory == null) {
             return;
         }
-        
-        mostrarInformacionSocio("Iria Mosquera Gil");
-        
+
+        informacionSociosCategoriaSQL();
+
     }
 
     public static SessionFactory conectarDB() {
@@ -218,27 +219,27 @@ public class practica0 {
             System.out.println("Error: " + e.getMessage());
         }
     }
-    
-    
-    public static void mostrarNombreMonitorNick(){
+
+    public static void mostrarNombreMonitorNick() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Introduzca el nick del monitor: ");
         String nick = sc.nextLine();
-        
+
         mostrarNombreMonitorNick(nick);
     }
-    
-    public static void mostrarInformacionSocio(String nombre){
+
+    public static void mostrarInformacionSocio(String nombre) {
         try {
             sesion = sesionFactory.openSession();
             Transaction tr = null;
 
             try {
                 tr = sesion.beginTransaction();
-                Query consulta = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.nombre='" + nombre + "'", Socio.class);
+                Query consulta = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.nombre LIKE :nombre", Socio.class);
+                consulta.setParameter("nombre", "%" + nombre + "%");
                 Socio socio = (Socio) consulta.getSingleResult();
                 System.out.println("nSocio | Nombre | dni | fNac | Telefono | Correo electronico | fEntrada | Categoria");
-                System.out.println(socio.getNumeroSocio() + " | "  + socio.getNombre() + " | " + socio.getDni() + " | " + socio.getFechaNacimiento() + " | " + socio.getCorreo() + " | " + socio.getFechaEntrada() + " | " + socio.getCategoria());
+                System.out.println(socio.getNumeroSocio() + " | " + socio.getNombre() + " | " + socio.getDni() + " | " + socio.getFechaNacimiento() + " | " + socio.getCorreo() + " | " + socio.getFechaEntrada() + " | " + socio.getCategoria());
 
             } catch (Exception e) {
                 tr.rollback();
@@ -253,8 +254,139 @@ public class practica0 {
             System.out.println("Error: " + e.getMessage());
         }
     }
-    
-    
-    
 
+    public static void mostrarInformacionSocio() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduce el nombre por teclado: ");
+        String nombre = sc.nextLine();
+        mostrarInformacionSocio(nombre);
+    }
+
+    public static void informacionActividadesDiaCuota(String dia, String cuota) {
+        try {
+            sesion = sesionFactory.openSession();
+            Transaction tr = null;
+
+            try {
+                tr = sesion.beginTransaction();
+                Query consulta = sesion.createNativeQuery(
+                        "SELECT * FROM ACTIVIDAD s WHERE s.dia LIKE :dia AND s.precioBaseMes >= :cuota",
+                        Actividad.class
+                );
+                consulta.setParameter("dia", "%" + dia + "%");
+                consulta.setParameter("cuota", cuota);
+                List<Actividad> actividades = consulta.getResultList();
+                System.out.println("idActividad | Nombre | Dia | Hora | Descripcion | Precio Base Mes | Monitor responsable");
+
+                for (Actividad a : actividades) {
+                    System.out.println(a.toString());
+                }
+
+            } catch (Exception e) {
+                tr.rollback();
+                System.out.println("Error: " + e.getMessage());
+            } finally {
+                if (sesion != null && sesion.isOpen()) {
+                    sesion.close();
+                }
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+        }
+    }
+
+    public static void informacionActividadesDiaCuota() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca el dia: ");
+        String dia = sc.nextLine();
+        System.out.println("Introduzca la cuota: ");
+        String cuota = sc.nextLine();
+        informacionActividadesDiaCuota(dia, cuota);
+    }
+
+    public static void informacionSociosCategoriaHQL(char categoria) {
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+
+        try {
+            tr = sesion.beginTransaction();
+
+            Query<Socio> consulta = sesion.createQuery(
+                    "FROM Socio a WHERE a.categoria = :categoria",
+                    Socio.class
+            );
+            consulta.setParameter("categoria", categoria);
+
+            List<Socio> socios = consulta.getResultList();
+
+            System.out.println("Numero de Socio | DNI   | Nombre       | FNac   | Telefono  | Correo      | FEntrada  | Categoria | Actividades");
+
+            for (Socio s : socios) {
+                System.out.println(s.toString());
+            }
+
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+            }
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
+    }
+    
+    public static void informacionSociosCategoriaHQL(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca la categoria: ");
+        String c = sc.next();
+        char categoria = c.charAt(0);
+        informacionSociosCategoriaHQL(categoria);
+    }
+    
+    
+    public static void informacionSociosCategoriaSQL(char categoria) {
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+
+        try {
+            tr = sesion.beginTransaction();
+
+            Query<Socio> consulta = sesion.createNativeQuery(
+                    "SELECT * FROM SOCIO a WHERE a.categoria = :categoria",
+                    Socio.class
+            );
+            consulta.setParameter("categoria", categoria);
+
+            List<Socio> socios = consulta.getResultList();
+
+            System.out.println("Numero de Socio | DNI   | Nombre       | FNac   | Telefono  | Correo      | FEntrada  | Categoria | Actividades");
+
+            for (Socio s : socios) {
+                System.out.println(s.toString());
+            }
+
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+            }
+            System.out.println("Error: " + e.getMessage());
+        } finally {
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
+    }
+    
+    public static void informacionSociosCategoriaSQL(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca la categoria: ");
+        String c = sc.next();
+        char categoria = c.charAt(0);
+        informacionSociosCategoriaSQL(categoria);
+    }
 }
