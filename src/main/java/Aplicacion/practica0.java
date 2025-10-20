@@ -33,7 +33,7 @@ public class practica0 {
             return;
         }
 
-        informacionSociosCategoriaSQL();
+        insertarSocio();
 
     }
 
@@ -388,5 +388,64 @@ public class practica0 {
         String c = sc.next();
         char categoria = c.charAt(0);
         informacionSociosCategoriaSQL(categoria);
+    }
+    
+    public static void insertarSocio(){
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+        
+        try {
+            tr = sesion.beginTransaction();
+            String numSocio;
+            String nombre;
+            String dni;
+            String fNac;
+            String tel;
+            String correo;
+            String fEntrada;
+            Character categoria;
+            
+            Scanner sc = new Scanner(System.in);
+            System.out.println("Introduzca el numero de socio(SXXX): ");
+            numSocio = sc.next();
+            Socio s = sesion.find(Socio.class, numSocio);
+            if(s != null){
+                System.out.println("Error el dni ya existe: ");
+                return;
+            }
+            
+            sc.nextLine();
+            
+            System.out.println("Introduce el nombre y apellido del socio");
+            nombre = sc.nextLine();
+            System.out.println("Introduzca el dni del socio: ");
+            dni = sc.next();
+            System.out.println("Introduzca la fecha de nacimiento(dd/mm/yyyy): ");
+            fNac = sc.next();
+            System.out.println("Introduzca el telefono: ");
+            tel = sc.next();
+            System.out.println("Introduzca el correo: ");
+            correo = sc.next();
+            System.out.println("Introduzca la fecha de entrada(dd/mm/yyyy): ");
+            fEntrada = sc.next();
+            System.out.println("Introduzca la categoria: ");
+            categoria = sc.next().charAt(0);
+            
+            
+            
+            Socio nuevoSocio = new Socio(numSocio, nombre, dni, fNac, tel, correo, fEntrada, categoria);
+            
+            sesion.persist(nuevoSocio);
+            
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+            }
+        }finally{
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
     }
 }
