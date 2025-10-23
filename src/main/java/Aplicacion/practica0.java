@@ -5,11 +5,13 @@
 package Aplicacion;
 
 import Modelo.Actividad;
+import Modelo.Monitor;
 import Modelo.Socio;
 import org.hibernate.SessionFactory;
 import config.HibernateUtil;
 import java.util.List;
 import java.util.Scanner;
+import java.lang.Object;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -32,8 +34,8 @@ public class practica0 {
         if (sesionFactory == null) {
             return;
         }
-
-        insertarSocio();
+        actividadesMonitorResponsableDni("26130141W");
+        
 
     }
 
@@ -410,7 +412,7 @@ public class practica0 {
             numSocio = sc.next();
             Socio s = sesion.find(Socio.class, numSocio);
             if(s != null){
-                System.out.println("Error el dni ya existe: ");
+                System.out.println("Error: el numSocio ya existe: ");
                 return;
             }
             
@@ -420,6 +422,16 @@ public class practica0 {
             nombre = sc.nextLine();
             System.out.println("Introduzca el dni del socio: ");
             dni = sc.next();
+            try {
+                Query query = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.dni = :dniP", Socio.class);
+                query.setParameter("dniP", dni);
+                
+                s = (Socio) query.getSingleResult();
+                System.out.println("Error el dni ya existe");
+                return;
+                
+            } catch (Exception e) {
+            }
             System.out.println("Introduzca la fecha de nacimiento(dd/mm/yyyy): ");
             fNac = sc.next();
             System.out.println("Introduzca el telefono: ");
@@ -448,4 +460,94 @@ public class practica0 {
             }
         }
     }
+    
+    public static void borradoPorDni(String dni){
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+        try{
+            tr = sesion.beginTransaction();
+            try {
+                Query query = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.dni = :dniP", Socio.class);
+                query.setParameter("dniP", dni);
+                
+                Socio s = (Socio) query.getSingleResult();
+                sesion.remove(s);
+                
+                System.out.println("Tupla eliminada");
+               
+                
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+            
+            tr.commit();
+        }catch(Exception e){
+            if(tr != null){
+                tr.rollback();
+            }
+            
+        }finally{
+            if (sesion != null && sesion.isOpen()){
+                sesion.close();
+            }
+        }
+        
+    }
+    
+    
+    public static void borradoPorDni(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca el dni a eliminar");
+        String dni = sc.next();
+        borradoPorDni(dni);
+    }
+    
+    public static void actividadesMonitorResponsableDni(String dni){
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+        
+        try{
+            tr = sesion.beginTransaction();
+            try {
+                Query consulta = sesion.createNativeQuery("SELECT m.codMonitor FROM MONITOR m WHERE m.dni = :dniP", Object.class);
+                consulta.setParameter("dniP", dni);
+                String codMonitor = (String) consulta.getSingleResult();
+                
+                consulta = sesion.createNativeQuery("SELECT * FROM ACTIVIDAD a WHERE a.monitorResponsable = :codMon", Actividad.class);
+                consulta.setParameter("codMon", codMonitor);
+                List<Actividad> actividades = consulta.getResultList();
+                
+                for(Actividad a : actividades){
+                    System.out.println(a.toString());
+                }
+                
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+                
+            }
+            tr.commit();
+        }catch(Exception e){
+            if(tr != null){
+                tr.rollback();
+            }
+            
+        }finally{
+            if(sesion != null && sesion.isOpen()){
+                sesion.close();
+            }
+        }
+        
+        
+    }
+    
+    public static void actividadesMonitorResponsableDni(){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduce el dni del monitor");
+        String dni = sc.next();
+        actividadesMonitorResponsableDni(dni);
+        
+    }
+    
+    
+    
 }

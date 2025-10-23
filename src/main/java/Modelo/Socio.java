@@ -86,6 +86,18 @@ public class Socio implements Serializable {
         this.actividadSet = actividadSet;
     }
     
+    public Socio(String numeroSocio, String nombre, String dni, String fechaNacimiento, String telefono, String correo, String fechaEntrada, Character categoria) {
+        this.numeroSocio = numeroSocio;
+        this.nombre = nombre;
+        this.dni = dni;
+        this.fechaNacimiento = fechaNacimiento;
+        this.telefono = telefono;
+        this.correo = correo;
+        this.fechaEntrada = fechaEntrada;
+        this.categoria = categoria;
+        this.actividadSet = null;
+    }
+    
     
     
     public String getNumeroSocio() {
@@ -182,7 +194,7 @@ public class Socio implements Serializable {
 
     @Override
     public String toString() {
-        return getNumeroSocio() + " | "  + getNombre() + " | " + getDni() + " | " + getFechaNacimiento() + " | " + getCorreo() + " | " + getFechaEntrada() + " | " + getCategoria();
+        return getNumeroSocio() + " | "  + getNombre() + " | " + getDni() + " | " + getFechaNacimiento() + " | "+ getTelefono() + " | " + getCorreo() + " | " + getFechaEntrada() + " | " + getCategoria();
     }
     
 }

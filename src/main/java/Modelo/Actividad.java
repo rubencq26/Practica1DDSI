@@ -44,7 +44,8 @@ public class Actividad implements Serializable {
     private String nombre;
     @Basic(optional = false)
     @Column(name = "dia")
-    private String dia;
+    private String dia; 
+    
     @Basic(optional = false)
     @Column(name = "hora")
     private int hora;
@@ -160,6 +161,8 @@ public class Actividad implements Serializable {
         hash += (idActividad != null ? idActividad.hashCode() : 0);
         return hash;
     }
+    
+    
 
     @Override
     public boolean equals(Object object) {
