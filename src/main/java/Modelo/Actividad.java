@@ -16,6 +16,7 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -44,8 +45,8 @@ public class Actividad implements Serializable {
     private String nombre;
     @Basic(optional = false)
     @Column(name = "dia")
-    private String dia; 
-    
+    private String dia;
+
     @Basic(optional = false)
     @Column(name = "hora")
     private int hora;
@@ -68,6 +69,7 @@ public class Actividad implements Serializable {
 
     public Actividad(String idActividad) {
         this.idActividad = idActividad;
+        socioSet = new HashSet<>();
     }
 
     public Actividad(String idActividad, String nombre, String dia, int hora, int precioBaseMes) {
@@ -76,6 +78,7 @@ public class Actividad implements Serializable {
         this.dia = dia;
         this.hora = hora;
         this.precioBaseMes = precioBaseMes;
+        socioSet = new HashSet<>();
     }
 
     public Actividad(String idActividad, String nombre, String dia, int hora, String descripcion, int precioBaseMes, Set<Socio> socioSet, Monitor monitorResponsable) {
@@ -87,9 +90,8 @@ public class Actividad implements Serializable {
         this.precioBaseMes = precioBaseMes;
         this.socioSet = socioSet;
         this.monitorResponsable = monitorResponsable;
+        socioSet = new HashSet<>();
     }
-    
-    
 
     public String getIdActividad() {
         return idActividad;
@@ -161,8 +163,11 @@ public class Actividad implements Serializable {
         hash += (idActividad != null ? idActividad.hashCode() : 0);
         return hash;
     }
-    
-    
+
+    public void altaSocio(Socio socio) {
+        socioSet.add(socio);
+        socio.getActividadSet().add(this);
+    }
 
     @Override
     public boolean equals(Object object) {
@@ -181,5 +186,5 @@ public class Actividad implements Serializable {
     public String toString() {
         return getIdActividad() + " | " + getNombre() + " | " + getDia() + " | " + getHora() + " | " + getDescripcion() + " | " + getPrecioBaseMes() + " | " + getMonitorResponsable();
     }
-    
+
 }

@@ -34,8 +34,8 @@ public class practica0 {
         if (sesionFactory == null) {
             return;
         }
-        actividadesMonitorResponsableDni("26130141W");
-        
+        inscribirSocioActividad("S001", "AC01");
+        informacionActividadesSocio("54941721B");
 
     }
 
@@ -53,7 +53,7 @@ public class practica0 {
 
     }
 
-    public static void listarSociosHQL() {
+    public static void listarSociosHQL() { //1. Información de los socios (HQL). Muestra todos los campos de todos los socios usando una consulta escrita en HQL 
         sesion = sesionFactory.openSession();
         Transaction tr = null;
         try {
@@ -77,7 +77,7 @@ public class practica0 {
 
     }
 
-    public static void listarSociosSQL() {
+    public static void listarSociosSQL() { // 2. Información de los socios (SQL Nativo). Igual que la opción 1 usando una consulta escrita en SQL  
         try {
             sesion = sesionFactory.openSession();
             Transaction tr = null;
@@ -105,7 +105,7 @@ public class practica0 {
         }
     }
 
-    public static void listarSociosNamed() {
+    public static void listarSociosNamed() { // 3. Información de los socios (Consulta nombrada). Igual que las opciones 1 y 2 usando una consulta nombrada 
         try {
             sesion = sesionFactory.openSession();
             Transaction tr = null;
@@ -133,7 +133,7 @@ public class practica0 {
         }
     }
 
-    public static void listarNombreTelefonoSocios() {
+    public static void listarNombreTelefonoSocios() { // 4. Nombre y teléfono de los socios. Muestra el nombre y el teléfono de todos los socios 
         try {
             sesion = sesionFactory.openSession();
             Transaction tr = null;
@@ -161,7 +161,7 @@ public class practica0 {
 
     }
 
-    public static void listarNombresPorCategorias(String categoria) {
+    public static void listarNombresPorCategorias(String categoria) { // 5. Nombre y categoría de los socios. Muestra el nombre y la categoría de los socios que pertenecen a una determinada categoría. El programa solicitará la categoría por teclado 
         try {
             sesion = sesionFactory.openSession();
             Transaction tr = null;
@@ -197,7 +197,7 @@ public class practica0 {
         listarNombresPorCategorias(cat);
     }
 
-    public static void mostrarNombreMonitorNick(String nick) {
+    public static void mostrarNombreMonitorNick(String nick) { // 6. Nombre de monitor por nick. Dado un nick solicitado por teclado, muestra el nombre del monitor al que le corresponde 
         try {
             sesion = sesionFactory.openSession();
             Transaction tr = null;
@@ -340,16 +340,15 @@ public class practica0 {
             }
         }
     }
-    
-    public static void informacionSociosCategoriaHQL(){
+
+    public static void informacionSociosCategoriaHQL() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Introduzca la categoria: ");
         String c = sc.next();
         char categoria = c.charAt(0);
         informacionSociosCategoriaHQL(categoria);
     }
-    
-    
+
     public static void informacionSociosCategoriaSQL(char categoria) {
         sesion = sesionFactory.openSession();
         Transaction tr = null;
@@ -383,19 +382,19 @@ public class practica0 {
             }
         }
     }
-    
-    public static void informacionSociosCategoriaSQL(){
+
+    public static void informacionSociosCategoriaSQL() {
         Scanner sc = new Scanner(System.in);
         System.out.println("Introduzca la categoria: ");
         String c = sc.next();
         char categoria = c.charAt(0);
         informacionSociosCategoriaSQL(categoria);
     }
-    
-    public static void insertarSocio(){
+
+    public static void insertarSocio() {
         sesion = sesionFactory.openSession();
         Transaction tr = null;
-        
+
         try {
             tr = sesion.beginTransaction();
             String numSocio;
@@ -406,18 +405,18 @@ public class practica0 {
             String correo;
             String fEntrada;
             Character categoria;
-            
+
             Scanner sc = new Scanner(System.in);
             System.out.println("Introduzca el numero de socio(SXXX): ");
             numSocio = sc.next();
             Socio s = sesion.find(Socio.class, numSocio);
-            if(s != null){
+            if (s != null) {
                 System.out.println("Error: el numSocio ya existe: ");
                 return;
             }
-            
+
             sc.nextLine();
-            
+
             System.out.println("Introduce el nombre y apellido del socio");
             nombre = sc.nextLine();
             System.out.println("Introduzca el dni del socio: ");
@@ -425,11 +424,11 @@ public class practica0 {
             try {
                 Query query = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.dni = :dniP", Socio.class);
                 query.setParameter("dniP", dni);
-                
+
                 s = (Socio) query.getSingleResult();
                 System.out.println("Error el dni ya existe");
                 return;
-                
+
             } catch (Exception e) {
             }
             System.out.println("Introduzca la fecha de nacimiento(dd/mm/yyyy): ");
@@ -442,112 +441,266 @@ public class practica0 {
             fEntrada = sc.next();
             System.out.println("Introduzca la categoria: ");
             categoria = sc.next().charAt(0);
-            
-            
-            
+
             Socio nuevoSocio = new Socio(numSocio, nombre, dni, fNac, tel, correo, fEntrada, categoria);
-            
+
             sesion.persist(nuevoSocio);
-            
+
             tr.commit();
         } catch (Exception e) {
             if (tr != null) {
                 tr.rollback();
             }
-        }finally{
+        } finally {
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
+    }
+
+    public static void borradoPorDni(String dni) {
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+        try {
+            tr = sesion.beginTransaction();
+            try {
+                Query query = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.dni = :dniP", Socio.class);
+                query.setParameter("dniP", dni);
+
+                Socio s = (Socio) query.getSingleResult();
+                sesion.remove(s);
+
+                System.out.println("Tupla eliminada");
+
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+            }
+
+        } finally {
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
+
+    }
+
+    public static void borradoPorDni() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca el dni a eliminar");
+        String dni = sc.next();
+        borradoPorDni(dni);
+    }
+
+    public static void actividadesMonitorResponsableDni(String dni) {
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+
+        try {
+            tr = sesion.beginTransaction();
+            try {
+                Query consulta = sesion.createNativeQuery("SELECT m.codMonitor FROM MONITOR m WHERE m.dni = :dniP", Object.class);
+                consulta.setParameter("dniP", dni);
+                String codMonitor = (String) consulta.getSingleResult();
+
+                consulta = sesion.createNativeQuery("SELECT * FROM ACTIVIDAD a WHERE a.monitorResponsable = :codMon", Actividad.class);
+                consulta.setParameter("codMon", codMonitor);
+                List<Actividad> actividades = consulta.getResultList();
+
+                for (Actividad a : actividades) {
+                    System.out.println(a.toString());
+                }
+
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+
+            }
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+            }
+
+        } finally {
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
+
+    }
+
+    public static void actividadesMonitorResponsableDni() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduce el dni del monitor");
+        String dni = sc.next();
+        actividadesMonitorResponsableDni(dni);
+
+    }
+
+    public static void informacionActividadesSocio(String dni) {
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+        try {
+            tr = sesion.beginTransaction();
+
+            try {
+                Query consulta = sesion.createNativeQuery("SELECT s.numeroSocio FROM SOCIO s WHERE s.dni = :dniP", String.class);
+                consulta.setParameter("dniP", dni);
+                String nSocio = (String) consulta.getSingleResult();
+
+                try {
+                    consulta = sesion.createNativeQuery("SELECT a.* FROM REALIZA r INNER JOIN ACTIVIDAD a ON r.idActividad = a.idActividad WHERE r.numeroSocio = :numSoc", Actividad.class);
+                    consulta.setParameter("numSoc", nSocio);
+
+                    List<Actividad> actividades = consulta.getResultList();
+
+                    System.out.println("Las actividades asociadas al socio " + dni + " son: ");
+
+                    for (Actividad a : actividades) {
+                        System.out.println(a.toString());
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Este socio no tiene actividades asociadas");
+                }
+
+            } catch (Exception e) {
+
+                System.out.println("No se encontro el dni");
+
+            }
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+            }
+        } finally {
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
+    }
+
+    public static void informacionActividadesSocio() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduzca el dni del socio: ");
+        String dni = sc.next();
+        informacionActividadesSocio(dni.toUpperCase());
+
+    }
+
+    public static void informacionSociosInscritosActividad(String nombre) {
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+        try {
+            tr = sesion.beginTransaction();
+
+            try {
+                Query consulta = sesion.createNativeQuery("SELECT a.idActividad FROM ACTIVIDAD a WHERE a.nombre LIKE :nombreP", String.class);
+                consulta.setParameter("nombreP", nombre);
+                String idActividad = (String) consulta.getSingleResult();
+
+                try {
+                    consulta = sesion.createNativeQuery("SELECT s.* FROM REALIZA r INNER JOIN SOCIO s ON r.numeroSocio = s.numeroSocio WHERE r.idActividad = :idAct", Socio.class);
+                    consulta.setParameter("idAct", idActividad);
+
+                    List<Socio> socios = consulta.getResultList();
+
+                    System.out.println("Las actividades asociadas a la actividad " + nombre + " son: ");
+
+                    for (Socio s : socios) {
+                        System.out.println(s.toString());
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("Esta actividad no tiene socios asociados");
+                }
+
+            } catch (Exception e) {
+
+                System.out.println("No se encontro el nombre de la actividad");
+
+            }
+            tr.commit();
+        } catch (Exception e) {
+            if (tr != null) {
+                tr.rollback();
+            }
+        } finally {
+            if (sesion != null && sesion.isOpen()) {
+                sesion.close();
+            }
+        }
+    }
+
+    public static void informacionSociosInscritosActividad() {
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Introduce el nombre de la actividad: ");
+        String nomAct = sc.next();
+        informacionSociosInscritosActividad(nomAct);
+    }
+
+    public static void inscribirSocioActividad(String numSoc, String idActi) {
+
+        sesion = sesionFactory.openSession();
+        Transaction tr = null;
+        try {
+            tr = sesion.beginTransaction();
+
+            Socio s = sesion.find(Socio.class, numSoc);
+            if(s == null){
+                System.out.println("El socio no ha sido encontrado");
+                return;
+            }
+          
+            
+            Actividad a = sesion.find(Actividad.class, idActi);
+            if(a == null){
+                System.out.println("La actividad no ha sido encontrada");
+                return;
+            }
+            
+            for(Socio sos : a.getSocioSet()){
+                if(sos.equals(s)){
+                    System.out.println("El socio ya estaba inscrito previamente a esta actividad");
+                    return;
+                }
+            }
+            
+            a.getSocioSet().size();
+            
+            a.altaSocio(s);
+            sesion.merge(a);
+            
+            System.out.println("Se ha actualizado al socio");
+            
+            tr.commit();
+        } catch (Exception e) {
+            System.out.println("Error");
+            if (tr != null) {
+                tr.rollback();
+            }
+        } finally {
             if (sesion != null && sesion.isOpen()) {
                 sesion.close();
             }
         }
     }
     
-    public static void borradoPorDni(String dni){
-        sesion = sesionFactory.openSession();
-        Transaction tr = null;
-        try{
-            tr = sesion.beginTransaction();
-            try {
-                Query query = sesion.createNativeQuery("SELECT * FROM SOCIO s WHERE s.dni = :dniP", Socio.class);
-                query.setParameter("dniP", dni);
-                
-                Socio s = (Socio) query.getSingleResult();
-                sesion.remove(s);
-                
-                System.out.println("Tupla eliminada");
-               
-                
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-            
-            tr.commit();
-        }catch(Exception e){
-            if(tr != null){
-                tr.rollback();
-            }
-            
-        }finally{
-            if (sesion != null && sesion.isOpen()){
-                sesion.close();
-            }
-        }
-        
-    }
-    
-    
-    public static void borradoPorDni(){
+    public static void inscribirSocioActividad(){
         Scanner sc = new Scanner(System.in);
-        System.out.println("Introduzca el dni a eliminar");
-        String dni = sc.next();
-        borradoPorDni(dni);
+        System.out.println("Introduzca el numero del socio: ");
+        String numSocio = sc.next();
+        System.out.println("Introduzca el id de la actividad: ");
+        String idAct = sc.next();
+        inscribirSocioActividad(numSocio, idAct);
     }
-    
-    public static void actividadesMonitorResponsableDni(String dni){
-        sesion = sesionFactory.openSession();
-        Transaction tr = null;
-        
-        try{
-            tr = sesion.beginTransaction();
-            try {
-                Query consulta = sesion.createNativeQuery("SELECT m.codMonitor FROM MONITOR m WHERE m.dni = :dniP", Object.class);
-                consulta.setParameter("dniP", dni);
-                String codMonitor = (String) consulta.getSingleResult();
-                
-                consulta = sesion.createNativeQuery("SELECT * FROM ACTIVIDAD a WHERE a.monitorResponsable = :codMon", Actividad.class);
-                consulta.setParameter("codMon", codMonitor);
-                List<Actividad> actividades = consulta.getResultList();
-                
-                for(Actividad a : actividades){
-                    System.out.println(a.toString());
-                }
-                
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-                
-            }
-            tr.commit();
-        }catch(Exception e){
-            if(tr != null){
-                tr.rollback();
-            }
-            
-        }finally{
-            if(sesion != null && sesion.isOpen()){
-                sesion.close();
-            }
-        }
-        
-        
-    }
-    
-    public static void actividadesMonitorResponsableDni(){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Introduce el dni del monitor");
-        String dni = sc.next();
-        actividadesMonitorResponsableDni(dni);
-        
-    }
-    
-    
-    
+
 }
+
+
